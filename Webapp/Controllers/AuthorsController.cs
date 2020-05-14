@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
 using Domain;
+using Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Webapp.Controllers
 {
+    [Authorize]
     public class AuthorsController : Controller
     {
         private readonly AppDbContext _context;
@@ -22,7 +26,11 @@ namespace Webapp.Controllers
         // GET: Authors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Authors.ToListAsync());
+            var appDbContext = _context.Authors
+                .Include(a => a.AppUser)
+                .Where(a => a.AppUserId == User.UserId());
+            
+            return View(await appDbContext.ToListAsync());
         }
 
         // GET: Authors/Details/5
@@ -54,8 +62,11 @@ namespace Webapp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,AppUserId,CreatedBy,CreatedAt,DeletedBy,DeletedAt,Id")] Author author)
+        public async Task<IActionResult> Create(Author author)
         {
+
+            author.AppUserId = User.UserId();
+            
             if (ModelState.IsValid)
             {
                 _context.Add(author);

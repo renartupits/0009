@@ -1,0 +1,1 @@
+This is .NET project for school course Distrubuted Systems

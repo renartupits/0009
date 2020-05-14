@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Webapp.Models;
@@ -21,6 +22,12 @@ namespace Webapp.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        [Authorize]
+        public string Test()
+        {
+            return "This is test!" + User.Identity.Name;
         }
 
         public IActionResult Privacy()
